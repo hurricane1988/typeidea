@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'typeidea.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'student',
+        'NAME': 'typeidea',
         'USER': 'root',
         'PASSWORD': 'Baohuibao@123',
         'HOST': '10.10.10.10',
