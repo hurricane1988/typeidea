@@ -1,3 +1,6 @@
+from .adminforms import PostAdminForm
+from typeidea.custom_site import custom_site
+
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
@@ -6,8 +9,16 @@ from .models import Post, Category, Tag
 # Register your models here.
 
 
+class PostInline(admin.TabularInline):
+    fields = ('title', 'desc')
+    extra = 1
+    model = Post
+
+
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
+    inlines = [PostInline, ]
+
     list_display = ('name', 'status', 'is_nav', 'owner','created_time', 'post_count')
     fields = ('name', 'status', 'is_nav', 'owner')
 
@@ -46,8 +57,10 @@ class CategoryOwnerFilter(admin.SimpleListFilter):
         return queryset
 
 
-@admin.register(Post)
+@admin.register(Post, site=custom_site)
 class PostAdmin(admin.ModelAdmin):
+    form = PostAdminForm
+
     list_display = [
         'title', 'category', 'status',
         'created_time', 'operator'
@@ -64,6 +77,7 @@ class PostAdmin(admin.ModelAdmin):
 
     exclude = ('owner',)
 
+    """
     fields = (
         ('category', 'title'),
         'desc',
@@ -71,11 +85,31 @@ class PostAdmin(admin.ModelAdmin):
         'content',
         'tag',
     )
+    """
+    fieldsets = (
+        ('基础配置', {
+            'description':'基础配置描述',
+            'fields': (
+                ('title', 'category'),
+                'status',
+            ),
+        }),
+        ('內容', {
+            'fields': (
+                'desc',
+                'content',
+            ),
+        }),
+        ('额外信息', {
+            'classes': ('collapse',),
+            'fields': ('tag', ),
+        })
+    )
 
     def operator(self, obj):
         return format_html(
             '<a href="{}">编辑</a>',
-            reverse('admin:blog_post_change', args=(obj.id, ))
+            reverse('cus_admin:blog_post_change', args=(obj.id, ))
         )
     operator.short_description = '操作'
 
